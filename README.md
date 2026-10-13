@@ -1,5 +1,5 @@
-# SimpleSomneoHA custom integration
-SimpleSomneoHA is a Home Assistant custom integration to control a Philips Somneo device (HF367x). This integration lets you control:
+# Simple Somneo custom integration
+Simple Somneo is a Home Assistant custom integration to control a Philips Somneo device (HF367x). This integration lets you control:
   - The light (with brightness) and night light of the Somneo
   - The audio player of the Somneo (FM radio presets or aux. input, volume)
   - A wake-up alarm, where the light gradually turns on before the alarm time
