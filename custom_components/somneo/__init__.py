@@ -1,6 +1,7 @@
 """Support for Philips Somneo devices."""
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from homeassistant.const import Platform
@@ -37,7 +38,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: SomneoConfigEntry) -> bo
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: SomneoConfigEntry) -> bool:
-    """Unload a config entry."""
+    """Unload a config entry and try to clean up the Somneo client if possible."""
+    coordinator: SomneoCoordinator | None = getattr(entry, "runtime_data", None)
+
+    if coordinator is not None:
+        client = getattr(coordinator, "somneo", None)
+        if client is not None:
+            # Attempt to call a sensible shutdown if the client exposes one.
+            close = getattr(client, "close", None) or getattr(client, "shutdown", None) or getattr(client, "disconnect", None)
+            if close is not None:
+                try:
+                    if asyncio.iscoroutinefunction(close):
+                        await close()
+                    else:
+                        await hass.async_add_executor_job(close)
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.debug("Error while closing Somneo client: %s", err)
+
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
