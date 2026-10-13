@@ -155,6 +155,10 @@ class SomneoOptionsFlow(config_entries.OptionsFlow):
                         CONF_SESSION,
                         default=self.config_entry.options.get(CONF_SESSION, True),
                     ): bool,
+                    vol.Optional(
+                        "scan_interval",
+                        default=self.config_entry.options.get("scan_interval", 10),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=3600)),
                 }
             ),
         )

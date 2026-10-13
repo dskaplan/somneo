@@ -32,7 +32,8 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(seconds=10)
+# Default scan interval (seconds); can be overridden by config entry options
+DEFAULT_SCAN_INTERVAL = 10
 # The wake-up profile only changes when somebody edits the alarm.
 WAKEUP_PROFILE_INTERVAL = 60
 # The Somneo regularly drops a request, only report it after a few in a row.
@@ -80,12 +81,19 @@ class SomneoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._profile: dict[str, Any] = {}
         self._profile_fetched: float | None = None
 
+        # Allow the scan interval to be configurable via config entry options
+        scan_seconds = entry.options.get("scan_interval", DEFAULT_SCAN_INTERVAL)
+        try:
+            scan_interval = timedelta(seconds=int(scan_seconds))
+        except Exception:
+            scan_interval = timedelta(seconds=DEFAULT_SCAN_INTERVAL)
+
         super().__init__(
             hass,
             _LOGGER,
             config_entry=entry,
             name=DOMAIN,
-            update_interval=SCAN_INTERVAL,
+            update_interval=scan_interval,
             request_refresh_debouncer=Debouncer(
                 hass, _LOGGER, cooldown=1.0, immediate=False
             ),
