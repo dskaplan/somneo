@@ -1,9 +1,9 @@
 """Constants for the Somneo integration."""
 from typing import Final
 
-DOMAIN: Final = "simple_somneo"
+DOMAIN: Final = "somneo"
 
-DEFAULT_NAME: Final = "SimpleSomneo"
+DEFAULT_NAME: Final = "Somneo"
 
 CONF_SESSION: Final = "session"
 

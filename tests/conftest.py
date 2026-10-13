@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.simple_somneo.const import DOMAIN
+from custom_components.somneo.const import DOMAIN
 
 PROFILE = {
     "prfnr": 1, "prfen": False, "prfvs": True, "pname": "",
