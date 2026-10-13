@@ -7,10 +7,10 @@
     ],
     "config_flow": true,
     "dependencies": [],
-    "documentation": "https://github.com/theneweinstein/somneo",
+    "documentation": "https://github.com/dskaplan/somneo",
     "integration_type": "device",
     "iot_class": "local_polling",
-    "issue_tracker": "https://github.com/theneweinstein/somneo/issues",
+    "issue_tracker": "https://github.com/dskaplan/somneo/issues",
     "loggers": [
         "somneo"
     ],
