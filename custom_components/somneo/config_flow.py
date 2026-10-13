@@ -9,7 +9,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import voluptuous as vol
-from homeassistant import config_entries, exceptions
+from homeassistant import config_entries
 from homeassistant.helpers.service_info.ssdp import SsdpServiceInfo
 from homeassistant.const import CONF_HOST, CONF_NAME
 from homeassistant.core import callback
@@ -51,7 +51,7 @@ def _base_schema(discovery_info: SsdpServiceInfo | None) -> vol.Schema:
 class SomneoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Example config flow."""
 
-    VERSION = 4
+    VERSION = 5
 
     discovery_info: SsdpServiceInfo | None = None
     host: str | None = None
@@ -88,8 +88,6 @@ class SomneoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
-
-        _LOGGER.debug(user_input)
 
         if user_input is not None:
             if self.discovery_info:
@@ -137,14 +135,10 @@ class SomneoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
         """Create the options flow."""
-        return SomneoOptionsFlow(config_entry)
+        return SomneoOptionsFlow()
 
 class SomneoOptionsFlow(config_entries.OptionsFlow):
     """Config flow options for Somneo."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize the Somneo options flow."""
-        self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -164,6 +158,3 @@ class SomneoOptionsFlow(config_entries.OptionsFlow):
                 }
             ),
         )
-
-class CannotConnect(exceptions.HomeAssistantError):
-    """Error to indicate we cannot connect."""

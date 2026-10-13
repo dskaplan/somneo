@@ -1,9 +1,10 @@
 """A entity class for Somneo integration."""
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.const import CONF_NAME
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import SomneoCoordinator
 from .const import DOMAIN
+from .coordinator import SomneoCoordinator
 
 
 class SomneoEntity(CoordinatorEntity[SomneoCoordinator]):
@@ -11,22 +12,38 @@ class SomneoEntity(CoordinatorEntity[SomneoCoordinator]):
 
     _attr_has_entity_name = True
 
-    def __init__(
-        self,
-        coordinator: SomneoCoordinator,
-        unique_id: str,
-        name: str,
-        dev_info: dict,
-        identifier: str,
-    ) -> None:
+    def __init__(self, coordinator: SomneoCoordinator, key: str) -> None:
         """Initialize the entity."""
         super().__init__(coordinator)
 
-        self._attr_unique_id = unique_id + "_" + identifier
+        entry = coordinator.config_entry
+        dev_info = entry.data["dev_info"]
+        self._attr_unique_id = f"{entry.unique_id}_{key}"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, unique_id)},
+            identifiers={(DOMAIN, entry.unique_id)},
             manufacturer=dev_info["manufacturer"],
             model=f"{dev_info['model']} {dev_info['modelnumber']}",
-            name=name,
+            name=entry.data[CONF_NAME],
         )
-        self._attr_has_entity_name = True
+
+
+class SomneoWakeupEntity(SomneoEntity):
+    """Entity for a setting of the wake-up alarm."""
+
+    _key: str
+
+    def __init__(self, coordinator: SomneoCoordinator, key: str) -> None:
+        """Initialize the entity."""
+        super().__init__(coordinator, f"wakeup_{key}")
+        self._attr_translation_key = f"wakeup_{key}"
+        self._key = key
+
+    @property
+    def _value(self) -> object | None:
+        """Return the value of the setting."""
+        return self.coordinator.data["wakeup"].get(self._key)
+
+    @property
+    def available(self) -> bool:
+        """Return if the setting is known."""
+        return super().available and self._value is not None

@@ -1,48 +1,31 @@
 """Media player entities for Somneo."""
 from __future__ import annotations
 
-import logging
-
 from homeassistant.components.media_player import (
     MediaPlayerDeviceClass,
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
     MediaPlayerState,
 )
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .coordinator import SomneoConfigEntry
 from .entity import SomneoEntity
-
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: SomneoConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Add Somneo light from config_entry."""
-
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    unique_id = config_entry.unique_id
-    assert unique_id is not None
-    name = config_entry.data[CONF_NAME]
-    device_info = config_entry.data["dev_info"]
-
-    async_add_entities(
-        [SomneoMediaPlayer(coordinator, unique_id, name, device_info, "player")],
-        update_before_add=True,
-    )
+    """Add Somneo media player from config_entry."""
+    async_add_entities([SomneoMediaPlayer(config_entry.runtime_data, "player")])
 
 
 class SomneoMediaPlayer(SomneoEntity, MediaPlayerEntity):
     """Representation of an Somneo Media player."""
 
-    _attr_should_poll = True
     _attr_supported_features = (
         MediaPlayerEntityFeature.VOLUME_SET
         | MediaPlayerEntityFeature.TURN_ON
@@ -52,19 +35,27 @@ class SomneoMediaPlayer(SomneoEntity, MediaPlayerEntity):
     _attr_device_class = MediaPlayerDeviceClass.SPEAKER
     _attr_translation_key = "player"
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Update media player state from coordinator data."""
-        player_data = self.coordinator.data["player"]
-        self._attr_state = (
-            MediaPlayerState.ON
-            if player_data["state"]
-            else MediaPlayerState.OFF
-        )
-        self._attr_volume_level = player_data["volume"]
-        self._attr_source = player_data["source"]
-        self._attr_source_list = player_data["possible_sources"]
-        self.async_write_ha_state()
+    @property
+    def state(self) -> MediaPlayerState:
+        """Return the state of the player."""
+        if self.coordinator.data["player"]["state"]:
+            return MediaPlayerState.ON
+        return MediaPlayerState.OFF
+
+    @property
+    def volume_level(self) -> float:
+        """Return the volume level of the player."""
+        return self.coordinator.data["player"]["volume"]
+
+    @property
+    def source(self) -> str:
+        """Return the current source."""
+        return self.coordinator.data["player"]["source"]
+
+    @property
+    def source_list(self) -> list[str]:
+        """Return the available sources."""
+        return self.coordinator.data["player"]["possible_sources"]
 
     async def async_turn_on(self) -> None:
         """Turn the player on."""

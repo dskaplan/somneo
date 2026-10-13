@@ -1,14 +1,13 @@
 # Somneo custom integration
-Home Assistant custom integration to control a Philips Somneo device. This integration let's you control:
-  - The light and nightlight of the Somneo
-  - All the 16 available alarms (toggle, time, days, powerwake)
-  - Sunset features (toggle, duration, lightcurve, sound)
-  - Media player of the Somneo (FM radio or aux. input)
-  - Snooze or ignore alarm (buttons)
+Home Assistant custom integration to control a Philips Somneo device (HF367x). This integration lets you control:
+  - The light (with brightness) and night light of the Somneo
+  - The audio player of the Somneo (FM radio presets or aux. input, volume)
+  - A wake-up alarm, where the light gradually turns on before the alarm time
+  - Snooze or dismiss a running alarm (buttons) and the snooze time
 
 Furthermore, it provides the following sensors:
-  - Ambient sensors (temperature, humidity, luminance and noise)
-  - Alarm status (on, off, snooze, wake-up, sunset)
+  - Ambient sensors (temperature, humidity, illuminance and sound pressure)
+  - Status (off, light, audio, sunset, RelaxBreathe, waking up, alarm, snooze)
   - Next alarm
 
 # Installation
@@ -18,81 +17,24 @@ You can install this custom component via HACS as a custom repository (https://h
 The Somneo should be automatically detected via SSDP. If not, you can also manually configure the Somneo:
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=somneo)
 
-# Alarm UI configuration
-Add a "manual" card into lovelace UI and copy paste the following code. It will create a card for the first Somneo Alarm (alarm0).
-Other cards can be created for other alarms (alarm1, alarm2, etc.)
-```
-type: entities
-entities:
-  - entity: switch.somneo_alarm0
-    name: On/Off
-  - entity: time.somneo_alarm0_time
-    name: Time
-  - entity: select.somneo_alarm0_days
-    name: Days
-  - entity: switch.somneo_alarm0_powerwake
-    name: PowerWake
-  - entity: number.somneo_alarm0_powerwake_delay
-    name: PowerWake delay
-title: Alarm work
-```
-<img src="https://github.com/theneweinstein/somneo/blob/master/lovelace1.jpg" alt="Example Lovelace" width="80%"/>
+# Wake-up
+The wake-up entities control the first alarm of the Somneo (the first alarm in the SleepMapper app). The light starts to turn on before the wake-up time and reaches the configured brightness at the wake-up time, when the sound starts.
 
-# Custom alarm days
+| Entity | Description |
+| --- | --- |
+| `switch.somneo_wake_up` | Enable or disable the wake-up |
+| `time.somneo_wake_up_time` | Time at which the light is at full brightness and the sound starts |
+| `select.somneo_wake_up_days` | Daily, workdays, weekend or tomorrow only |
+| `number.somneo_wake_up_duration` | How long the light takes to turn on (5 to 40 minutes) |
+| `number.somneo_wake_up_brightness` | Final light level (1 to 25) |
+| `select.somneo_wake_up_light_theme` | Colour theme of the light, e.g. sunny day |
+| `select.somneo_wake_up_sound` | Wake-up sound, FM preset or off |
+| `number.somneo_wake_up_volume` | Volume of the sound (1 to 25) |
 
-The select entity for the days only supports a limited set of days, namely weekdays, weekends, everyday and tomorrow. In case you want to select a different day for the alarm, you can use the text entity. The text contains a comma-seperated list (without white-spaces) of abbreviations of the day of the week (i.e. `mon,tue,wed,thu,fri,sat,sun`) or `tomorrow`.
-```
-type: entities
-entities:
-  - entity: switch.somneo_alarm0
-    name: On/Off
-  - entity: time.somneo_alarm0_time
-    name: Time
-  - entity: text.somneo_alarm0_days
-    name: Days
-  - entity: switch.somneo_alarm0_powerwake
-    name: PowerWake
-  - entity: number.somneo_alarm0_powerwake_delay
-    name: PowerWake delay
-title: Alarm work
-```
-<img src="https://github.com/theneweinstein/somneo/blob/master/lovelace2.jpg" alt="Example Lovelace with custom days" width="80%"/>
+The other alarms of the Somneo are not exposed and can still be used from the SleepMapper app.
 
-
-# Services
-This component includes two services to adjust the wake-up light and sound settings. To adjust the light settings of an alarm you can call the following function:
+# Development
+Run the tests with:
 ```
-service: somneo.set_light_alarm
-target:
-  entity_id: switch.somneo_alarm0
-data:
-  curve: sunny day
-  level: 20
-  duration: 30
-```
-The curve is either `sunny day`, `island red` or `nordic white`. Level should be between 0 and 25 and duration betweeen 4 and 40 minutes.
-
-To adjust the sound settings of an alarm you can call the following function:
-```
-service: somneo.set_sound_alarm
-target:
-  entity_id: switch.somneo_alarm0
-data:
-  source: wake-up
-  channel: forest birds
-  level: 10
-
-```
-The source is `wake-up` for the wake-up sounds, `radio` for the FM radio of `off` for no sound. If the wake-up sound is selected, channel is one of the following sounds: `forest birds`, `summer birds`, `morning alps`, `yoga harmony`, `nepal bowls`, `summer lake` or `ocean waves`. If the radio is selected, channel has a value 1 till 5 (formatted as a string). The level should be between 1 and 25.
-
-Furthermore, alarms can be added to or removed from the list in the Somneo app with:
-```
-service: somneo.add_alarm
-target:
-  entity_id: switch.somneo_alarm0
-```
-```
-service: somneo.remove_alarm
-target:
-  entity_id: switch.somneo_alarm0
+uv run --no-project --python 3.14 --with pytest-homeassistant-custom-component --with pysomneo==5.0.6 pytest
 ```

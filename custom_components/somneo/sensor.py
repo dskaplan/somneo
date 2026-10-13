@@ -1,95 +1,86 @@
 """Sensor entities for Somneo."""
 from __future__ import annotations
 
-import logging
+from datetime import datetime
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
+    SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.const import (
+    LIGHT_LUX,
+    PERCENTAGE,
+    UnitOfSoundPressure,
+    UnitOfTemperature,
+)
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SENSORS
+from .const import STATUSES
+from .coordinator import SomneoConfigEntry, SomneoCoordinator
 from .entity import SomneoEntity
 
-_LOGGER = logging.getLogger(__name__)
+SENSORS = (
+    SensorEntityDescription(
+        key="temperature",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="humidity",
+        device_class=SensorDeviceClass.HUMIDITY,
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="luminance",
+        device_class=SensorDeviceClass.ILLUMINANCE,
+        native_unit_of_measurement=LIGHT_LUX,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="noise",
+        device_class=SensorDeviceClass.SOUND_PRESSURE,
+        native_unit_of_measurement=UnitOfSoundPressure.DECIBEL,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: SomneoConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Add Somneo from config_entry."""
+    coordinator = config_entry.runtime_data
 
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    unique_id = config_entry.unique_id
-    assert unique_id is not None
-    name = config_entry.data[CONF_NAME]
-    device_info = config_entry.data["dev_info"]
-
-    sensors = []
-    for sensor in list(SENSORS):
-        sensors.append(SomneoSensor(coordinator, unique_id, name, device_info, sensor))
-    sensors.append(
-        SomneoNextAlarmSensor(coordinator, unique_id, name, device_info, "next")
+    async_add_entities(
+        [
+            *(SomneoSensor(coordinator, description) for description in SENSORS),
+            SomneoNextAlarmSensor(coordinator, "next"),
+            SomneoStatusSensor(coordinator, "alarm_status"),
+        ]
     )
-    sensors.append(
-        SomneoAlarmStatus(coordinator, unique_id, name, device_info, "alarm_status")
-    )
-
-    async_add_entities(sensors, update_before_add=True)
 
 
 class SomneoSensor(SomneoEntity, SensorEntity):
     """Representation of a Sensor."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
-
     def __init__(
-        self,
-        coordinator,
-        unique_id: str,
-        name: str,
-        dev_info: dict,
-        sensor_type: str,
+        self, coordinator: SomneoCoordinator, description: SensorEntityDescription
     ) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator, unique_id, name, dev_info, sensor_type)
-
-        self._attr_translation_key = sensor_type
-        self._attr_native_unit_of_measurement = SENSORS[sensor_type]
-        self._type = sensor_type
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Update the sensor value."""
-        if self._type == "temperature":
-            self._attr_native_value = self.coordinator.data["temperature"]
-        elif self._type == "humidity":
-            self._attr_native_value = self.coordinator.data["humidity"]
-        elif self._type == "luminance":
-            self._attr_native_value = self.coordinator.data["luminance"]
-        elif self._type == "noise":
-            self._attr_native_value = self.coordinator.data["noise"]
-        self.async_write_ha_state()
+        super().__init__(coordinator, description.key)
+        self.entity_description = description
 
     @property
-    def device_class(self) -> SensorDeviceClass | None:
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        if self._type == "temperature":
-            return SensorDeviceClass.TEMPERATURE
-        if self._type == "humidity":
-            return SensorDeviceClass.HUMIDITY
-        if self._type == "luminance":
-            return SensorDeviceClass.ILLUMINANCE
-        if self._type == "noise":
-            return SensorDeviceClass.SOUND_PRESSURE
-        return None
+    def native_value(self) -> float | None:
+        """Return the sensor value."""
+        return self.coordinator.data[self.entity_description.key]
 
 
 class SomneoNextAlarmSensor(SomneoEntity, SensorEntity):
@@ -98,20 +89,20 @@ class SomneoNextAlarmSensor(SomneoEntity, SensorEntity):
     _attr_translation_key = "next_alarm"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Update the next alarm sensor value."""
-        self._attr_native_value = self.coordinator.data["next_alarm"]
-        self.async_write_ha_state()
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the time of the next alarm."""
+        return self.coordinator.data["next_alarm"]
 
 
-class SomneoAlarmStatus(SomneoEntity, SensorEntity):
-    """Sensor entity that provides the current status of the alarm."""
+class SomneoStatusSensor(SomneoEntity, SensorEntity):
+    """Sensor entity that provides what the Somneo is currently doing."""
 
-    _attr_translation_key = "alarm_status"
+    _attr_translation_key = "status"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = STATUSES
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Update the alarm status sensor value."""
-        self._attr_native_value = self.coordinator.data["somneo_status"]
-        self.async_write_ha_state()
+    @property
+    def native_value(self) -> str:
+        """Return the status."""
+        return self.coordinator.data["status"]

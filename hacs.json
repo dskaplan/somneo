@@ -9,7 +9,7 @@
     "number",
     "time",
     "media_player",
-    "text"
+    "button"
   ],
   "iot_class": "Local Polling",
   "homeassistant": "2024.2.0"

@@ -50,15 +50,17 @@
       "next_alarm": {
         "name": "Next alarm"
       },
-      "alarm_status": {
-        "name": "Alarm status",
+      "status": {
+        "name": "Status",
         "state": {
           "off": "Off",
-          "snooze": "Snooze",
-          "wake-up": "Wake-up",
+          "light": "Light",
+          "audio": "Audio",
           "sunset": "Sunset",
-          "on": "On",
-          "unknown": "Unknown"
+          "relax_breathe": "RelaxBreathe",
+          "wake_up": "Waking up",
+          "alarm": "Alarm",
+          "snooze": "Snooze"
         }
       }
     },
@@ -71,131 +73,66 @@
       }
     },
     "select": {
-      "days": {
-        "name": "Alarm{number} days",
+      "wakeup_days": {
+        "name": "Wake-up days",
         "state": {
-          "workdays": "Workdays",
           "daily": "Daily",
+          "workdays": "Workdays",
           "weekend": "Weekend",
-          "tomorrow": "Tomorrow",
-          "custom": "Custom"
+          "tomorrow": "Tomorrow"
         }
       },
-      "sunset_curve": {
-        "name": "Sunset light curve",
+      "wakeup_theme": {
+        "name": "Wake-up light theme",
         "state": {
           "sunny_day": "Sunny day",
           "island_red": "Island red",
-          "nordic_white": "Nordic white"
+          "nordic_white": "Nordic white",
+          "caribbean_red": "Caribbean red"
         }
       },
-      "sunset_sound": {
-        "name": "Sunset sound",
+      "wakeup_sound": {
+        "name": "Wake-up sound",
         "state": {
-          "soft_rain": "Soft rain",
-          "ocean_waves": "Ocean waves",
-          "under_water": "Under water",
+          "off": "Off",
+          "forest_birds": "Forest birds",
+          "summer_birds": "Summer birds",
+          "buddha_wakeup": "Buddha wake-up",
+          "morning_alps": "Morning Alps",
+          "yoga_harmony": "Yoga harmony",
+          "nepal_bowls": "Nepal bowls",
           "summer_lake": "Summer lake",
+          "ocean_waves": "Ocean waves",
           "fm_1": "FM 1",
           "fm_2": "FM 2",
           "fm_3": "FM 3",
           "fm_4": "FM 4",
-          "fm_5": "FM 5",
-          "off": "Off"
+          "fm_5": "FM 5"
         }
       }
     },
     "switch": {
-      "alarm": {
-        "name": "Alarm{number}",
-        "state_attributes": {
-          "hour": {
-            "name": "Hour"
-          },
-          "minute": {
-            "name": "Minute"
-          },
-          "day": {
-            "name": "Day",
-            "state": {
-              "workdays": "Workdays",
-              "daily": "Daily",
-              "weekend": "Weekend",
-              "tomorrow": "Tomorrow"
-            }
-          },
-          "powerwake": {
-            "name": "PowerWake",
-            "state": {
-              "false": "Off",
-              "true": "On"
-            }
-          },
-          "powerwake_delta": {
-            "name": "PowerWake delay"
-          }
-        }
-      },
-      "powerwake": {
-        "name": "Alarm{number} PowerWake",
-        "state_attributes": {
-          "powerwake_delta": {
-            "name": "PowerWake delay"
-          }
-        }
-      },
-      "sunset": {
-        "name": "Sunset",
-        "state_attributes": {
-          "duration": {
-            "name": "Duration"
-          },
-          "curve": {
-            "name": "Light curve"
-          },
-          "level": {
-            "name": "Light level"
-          },
-          "sound": {
-            "name": "Sound"
-          },
-          "volume": {
-            "name":  "Volume"
-          }
-        }
-      },
-      "display_on": {
-        "name": "Display always on"
+      "wakeup": {
+        "name": "Wake-up"
       }
     },
     "number": {
-      "powerwake_delta": {
-        "name": "Alarm{number} PowerWake delay"
-      },
       "snooze_time": {
         "name": "Snooze time"
       },
-      "sunset_duration": {
-        "name": "Sunset duration"
+      "wakeup_duration": {
+        "name": "Wake-up duration"
       },
-      "sunset_level": {
-        "name": "Sunset light level"
+      "wakeup_brightness": {
+        "name": "Wake-up brightness"
       },
-      "sunset_volume": {
-        "name": "Sunset volume"
-      },
-      "display_brightness": {
-        "name": "Display brightness"
-      }
-    },
-    "text": {
-      "days_str": {
-        "name": "Alarm{number} days"
+      "wakeup_volume": {
+        "name": "Wake-up volume"
       }
     },
     "time": {
-      "time": {
-        "name": "Alarm{number} time"
+      "wakeup_time": {
+        "name": "Wake-up time"
       }
     }
   }

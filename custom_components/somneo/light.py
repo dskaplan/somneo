@@ -1,71 +1,58 @@
 """Light entities for Somneo."""
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .coordinator import SomneoConfigEntry
 from .entity import SomneoEntity
 
-_LOGGER = logging.getLogger(__name__)
+# The Somneo has 25 light levels, lower brightnesses would round down to 0.
+MIN_BRIGHTNESS = 11
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: SomneoConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Add Somneo light from config_entry."""
-
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    unique_id = config_entry.unique_id
-    assert unique_id is not None
-    name = config_entry.data[CONF_NAME]
-    device_info = config_entry.data["dev_info"]
+    coordinator = config_entry.runtime_data
 
     async_add_entities(
         [
-            SomneoLight(coordinator, unique_id, name, device_info, "light"),
-            SomneoNightLight(coordinator, unique_id, name, device_info, "nightlight"),
-        ],
-        update_before_add=True,
+            SomneoLight(coordinator, "light"),
+            SomneoNightLight(coordinator, "nightlight"),
+        ]
     )
 
 
 class SomneoLight(SomneoEntity, LightEntity):
     """Representation of an Somneo Light."""
 
-    _attr_should_poll = True
-    _attr_supported_color_modes: set[ColorMode | str] = {ColorMode.BRIGHTNESS}
+    _attr_color_mode = ColorMode.BRIGHTNESS
+    _attr_supported_color_modes = {ColorMode.BRIGHTNESS}
     _attr_translation_key = "normal_light"
 
     @property
-    def color_mode(self) -> ColorMode:
-        """Return the color mode of the light."""
-        return ColorMode.BRIGHTNESS
+    def is_on(self) -> bool:
+        """Return if the light is on."""
+        return self.coordinator.data["light_is_on"]
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Update the state from coordinator data."""
-        if not self.coordinator.data:
-            _LOGGER.debug("No data received from coordinator, skipping update.")
-            return
-
-        self._attr_is_on = self.coordinator.data.get("light_is_on", False)
-        self._attr_brightness = self.coordinator.data.get("light_brightness", 0)
-        self.async_write_ha_state()
+    @property
+    def brightness(self) -> int:
+        """Return the brightness of the light."""
+        return self.coordinator.data["light_brightness"]
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""
-        await self.coordinator.async_toggle_light(
-            True, brightness=kwargs.get(ATTR_BRIGHTNESS)
-        )
+        brightness = kwargs.get(ATTR_BRIGHTNESS)
+        if brightness is not None:
+            brightness = max(brightness, MIN_BRIGHTNESS)
+        await self.coordinator.async_toggle_light(True, brightness=brightness)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
@@ -75,24 +62,14 @@ class SomneoLight(SomneoEntity, LightEntity):
 class SomneoNightLight(SomneoEntity, LightEntity):
     """Representation of an Somneo Night light."""
 
-    _attr_should_poll = True
-    _attr_supported_color_modes: set[ColorMode | str] = {ColorMode.ONOFF}
+    _attr_color_mode = ColorMode.ONOFF
+    _attr_supported_color_modes = {ColorMode.ONOFF}
     _attr_translation_key = "night_light"
 
     @property
-    def color_mode(self) -> ColorMode:
-        """Return the color mode of the light."""
-        return ColorMode.ONOFF
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Update the state from coordinator data."""
-        if not self.coordinator.data:
-            _LOGGER.debug("No data received from coordinator, skipping update.")
-            return
-
-        self._attr_is_on = self.coordinator.data.get("nightlight_is_on", False)
-        self.async_write_ha_state()
+    def is_on(self) -> bool:
+        """Return if the night light is on."""
+        return self.coordinator.data["nightlight_is_on"]
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""

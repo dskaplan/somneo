@@ -50,15 +50,17 @@
       "next_alarm": {
         "name": "Volgende alarm"
       },
-      "alarm_status": {
-        "name": "Alarm status",
+      "status": {
+        "name": "Status",
         "state": {
           "off": "Uit",
-          "snooze": "Sluimeren",
-          "wake-up": "Wake-up",
+          "light": "Licht",
+          "audio": "Audio",
           "sunset": "Zonsondergang",
-          "on": "Aan",
-          "unknown": "Onbekend"
+          "relax_breathe": "RelaxBreathe",
+          "wake_up": "Wake-up",
+          "alarm": "Alarm",
+          "snooze": "Sluimeren"
         }
       }
     },
@@ -71,131 +73,66 @@
       }
     },
     "select": {
-      "days": {
-        "name": "Alarm{number} dagen",
+      "wakeup_days": {
+        "name": "Wake-up dagen",
         "state": {
-          "workdays": "Doordeweeks",
           "daily": "Dagelijks",
+          "workdays": "Werkdagen",
           "weekend": "Weekend",
-          "tomorrow": "Morgen",
-          "custom": "Aangepast"
+          "tomorrow": "Morgen"
         }
       },
-      "sunset_curve": {
-        "name": "Zonsondergang lichtcurve",
+      "wakeup_theme": {
+        "name": "Wake-up lichtthema",
         "state": {
           "sunny_day": "Zonnige dag",
           "island_red": "Eiland rood",
-          "nordic_white": "Noords wit"
+          "nordic_white": "Noords wit",
+          "caribbean_red": "Caribisch rood"
         }
       },
-      "sunset_sound": {
-        "name": "Zonsondergang geluid",
+      "wakeup_sound": {
+        "name": "Wake-up geluid",
         "state": {
-          "soft_rain": "Zachte regen",
+          "off": "Uit",
+          "forest_birds": "Bosvogels",
+          "summer_birds": "Zomervogels",
+          "buddha_wakeup": "Buddha wake-up",
+          "morning_alps": "Ochtend in de Alpen",
+          "yoga_harmony": "Yoga harmonie",
+          "nepal_bowls": "Nepalese klankschalen",
+          "summer_lake": "Zomermeer",
           "ocean_waves": "Oceaangolven",
-          "under_water": "Onder water",
-          "summer_lake": "Zomers meer",
           "fm_1": "FM 1",
           "fm_2": "FM 2",
           "fm_3": "FM 3",
           "fm_4": "FM 4",
-          "fm_5": "FM 5",
-          "off": "Uit"
+          "fm_5": "FM 5"
         }
       }
     },
     "switch": {
-      "alarm": {
-        "name": "Alarm{number}",
-        "state_attributes": {
-          "hour": {
-            "name": "Uur"
-          },
-          "minute": {
-            "name": "Minuut"
-          },
-          "day": {
-            "name": "Dag",
-            "state": {
-              "workdays": "Doordeweeks",
-              "daily": "Dagelijks",
-              "weekend": "Weekend",
-              "tomorrow": "Morgen"
-            }
-          },
-          "powerwake": {
-            "name": "PowerWake",
-            "state": {
-              "false": "Uit",
-              "true": "Aan"
-            }
-          },
-          "powerwake_delta": {
-            "name": "PowerWake vertraging"
-          }
-        }
-      },
-      "powerwake": {
-        "name": "Alarm{number} PowerWake",
-        "state_attributes": {
-          "powerwake_delta": {
-            "name": "PowerWake vertraing"
-          }
-        }
-      },
-      "sunset": {
-        "name": "Zonsondergang",
-        "state_attributes": {
-          "duration": {
-            "name": "Duur"
-          },
-          "curve": {
-            "name": "Lichtcurve"
-          },
-          "level": {
-            "name":  "Lichtniveau"
-          },
-          "sound": {
-            "name": "Geluid"
-          },
-          "volume": {
-            "name": "Volume"
-          }
-        }
-      },
-      "display_on": {
-        "name": "Scherm altijd aan"
+      "wakeup": {
+        "name": "Wake-up"
       }
     },
     "number": {
-      "powerwake_delta": {
-        "name": "Alarm{number} PowerWake vertraging"
-      },
       "snooze_time": {
         "name": "Sluimertijd"
       },
-      "sunset_duration": {
-        "name": "Zonsondergang duur"
+      "wakeup_duration": {
+        "name": "Wake-up duur"
       },
-      "sunset_level": {
-        "name": "Zonsondergang lichtniveau"
+      "wakeup_brightness": {
+        "name": "Wake-up helderheid"
       },
-      "sunset_volume": {
-        "name": "Zonsondergang volume"
-      },
-      "display_brightness": {
-        "name": "Scherm helderheid"
-      }
-    },
-    "text": {
-      "days_str": {
-        "name": "Alarm{number} dagen"
+      "wakeup_volume": {
+        "name": "Wake-up volume"
       }
     },
     "time": {
-      "time": {
-        "name": "Alarm{number} tijd"
+      "wakeup_time": {
+        "name": "Wake-up tijd"
       }
     }
   }

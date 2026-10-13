@@ -17,128 +17,57 @@
       }
     },
     "number": {
-      "powerwake_delta": {
-        "default": "mdi:clock-start"
-      },
       "snooze_time": {
         "default": "mdi:alarm-snooze"
       },
-      "sunset_duration": {
-        "default": "mdi:clock-end"
+      "wakeup_duration": {
+        "default": "mdi:timer-sand"
       },
-      "sunset_level": {
+      "wakeup_brightness": {
         "default": "mdi:brightness-5"
       },
-      "sunset_volume": {
+      "wakeup_volume": {
         "default": "mdi:volume-high"
-      },
-      "display_brightness": {
-        "default": "mdi:brightness-5"
       }
     },
     "select": {
-      "days": {
+      "wakeup_days": {
         "default": "mdi:calendar-range"
       },
-      "sunset_sound": {
-        "default": "mdi:playlist-music"
+      "wakeup_theme": {
+        "default": "mdi:weather-sunset-up"
       },
-      "sunset_curve": {
-        "default": "mdi:weather-sunset"
+      "wakeup_sound": {
+        "default": "mdi:playlist-music"
       }
     },
     "sensor": {
-      "alarm_status": {
+      "status": {
         "default": "mdi:alarm-off",
         "state": {
-          "off": "mdi:alarm-off",
-          "on": "mdi:alarm",
-          "snooze": "mdi:alarm-snooze",
-          "wake-up": "mdi:weather-sunset-up",
-          "sunset": "mdi:weather-sunset-down"
+          "light": "mdi:lightbulb",
+          "audio": "mdi:speaker",
+          "sunset": "mdi:weather-sunset-down",
+          "relax_breathe": "mdi:meditation",
+          "wake_up": "mdi:weather-sunset-up",
+          "alarm": "mdi:alarm",
+          "snooze": "mdi:alarm-snooze"
         }
       }
     },
     "switch": {
-      "alarm": {
+      "wakeup": {
         "default": "mdi:alarm",
         "state": {
           "on": "mdi:alarm-check",
           "off": "mdi:alarm-off"
-        },
-        "state_attributes": {
-          "hour": {
-            "default": "mdi:alpha-d"
-          },
-          "minute": {
-            "default": "mdi:alpha-m"
-          },
-          "day": {
-            "default": "mdi:calendar-range"
-          },
-          "powerwake": {
-            "default": "mdi:alarm",
-            "state": {
-              "on": "mdi:alarm-light",
-              "off": "mdi:alarm-light-off"
-            }
-          },
-          "powerwake_delta": {
-            "default": "mdi:clock-start"
-          }
         }
-      },
-      "powerwake": {
-        "default": "mdi:alarm",
-        "state": {
-          "on": "mdi:alarm-light",
-          "off": "mdi:alarm-light-off"
-        },
-        "state_attributes": {
-          "powerwake_delta": {
-            "default": "mdi:clock-start"
-          }
-        }
-      },
-      "sunset": {
-        "default": "mdi:weather-sunset",
-        "state_attributes": {
-          "duration": {
-            "default": "mdi:clock-end"
-          },
-          "curve": {
-            "default": "mdi:weather-sunset"
-          },
-          "level": {
-            "default": "mdi:brightness-5"
-          },
-          "sound": {
-            "default": "mdi:playlist-music"
-          },
-          "volume": {
-            "default":  "mdi:volume-high"
-          }
-        }
-      },
-      "display_on": {
-        "default": "mdi:monitor"
       }
     },
-    "text":{
-      "days_str": {
-        "default": "mdi:calendar-range"
-      }
-    },
-    "time":{
-      "time": {
+    "time": {
+      "wakeup_time": {
         "default": "mdi:clock-digital"
       }
     }
-  },
-  "services": {
-    "set_alarm_light": "mdi:sun-clock",
-    "set_alarm_sound": "mdi:alarm-note",
-    "add_alarm": "mdi:alarm-plus",
-    "remove_alarm": "mdi:alarm-off"
   }
 }
