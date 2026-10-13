@@ -1,5 +1,5 @@
 {
-  "name": "Philips Somneo",
+  "name": "SimpleSomeoHA",
   "render_readme": true,
   "domains": [
     "sensor",
