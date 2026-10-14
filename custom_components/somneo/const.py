@@ -3,7 +3,7 @@ from typing import Final
 
 DOMAIN: Final = "somneo"
 
-DEFAULT_NAME: Final = "Simple Somneo"
+DEFAULT_NAME: Final = "SimpleSomneo"
 
 CONF_SESSION: Final = "session"
 

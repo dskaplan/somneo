@@ -1,7 +1,7 @@
 Contributing
 ============
 
-Thanks for considering contributing to Simple Somneo (this repository).
+Thanks for considering contributing to SimpleSomneo (this repository).
 
 How to contribute
 
@@ -16,7 +16,7 @@ Running tests (local)
 
 This project uses pytest and pytest-homeassistant-custom-component. To run tests locally:
 
-1. Create a virtualenv with Python 3.11+.
+1. Create a virtualenv with Python 3.14 or 3.15.
 2. Install dev/test dependencies:
    pip install -e .
    pip install pytest pytest-homeassistant-custom-component

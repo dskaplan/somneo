@@ -1,6 +1,6 @@
 {
     "domain": "somneo",
-    "name": "Simple Somneo",
+    "name": "SimpleSomneo",
     "after_dependencies": [],
     "codeowners": [
         "@theneweinstein"
