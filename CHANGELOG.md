@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 0.2.0 - 2026-10-22
 
 - Make scan interval configurable via options (config entry `scan_interval`, seconds, default 10)
 - Upgrade to the async pysomneo 6.0.0; the coordinator and config flow no longer use executor threads
