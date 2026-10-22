@@ -38,6 +38,6 @@ jobs:
 
       - name: Run tests with uv
         run: |
-          uv run --no-project --python ${{ matrix.python-version }} --with pytest-homeassistant-custom-component --with pysomneo==5.0.6 pytest -q
+          uv run --no-project --python ${{ matrix.python-version }} --with pytest-homeassistant-custom-component --with pysomneo==6.0.0 pytest -q
         env:
           PYTHONWARNINGS: default

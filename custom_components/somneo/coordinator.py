@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-import functools as ft
 import logging
 from datetime import time, timedelta
 from time import monotonic
@@ -17,7 +16,6 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from pysomneo import FM_PRESETS, Somneo
 
 from .const import (
-    CONF_SESSION,
     DOMAIN,
     STATUS_ALARM,
     STATUS_AUDIO,
@@ -70,12 +68,11 @@ class SomneoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def __init__(self, hass: HomeAssistant, entry: SomneoConfigEntry) -> None:
         """Initialize Somneo client."""
-        self.somneo = Somneo(
-            entry.data[CONF_HOST], use_session=entry.options.get(CONF_SESSION, True)
-        )
+        self.somneo = Somneo(entry.data[CONF_HOST])
         self.light_themes: list[str] = []
         self.sounds: list[str] = []
-        # The Somneo cannot handle more than one connection at a time.
+        # pysomneo queues requests on a single connection, the lock keeps a
+        # command from interleaving with the requests of an update.
         self._lock = asyncio.Lock()
         self._failures = 0
         self._profile: dict[str, Any] = {}
@@ -103,7 +100,7 @@ class SomneoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Fetch the latest data."""
         try:
             async with self._lock:
-                data = await self.hass.async_add_executor_job(self._fetch)
+                data = await self._fetch()
         except Exception as err:
             self._failures += 1
             if self.data is None or self._failures >= MAX_FAILURES:
@@ -113,10 +110,12 @@ class SomneoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._failures = 0
         return data
 
-    def _fetch(self) -> dict[str, Any]:
+    async def _fetch(self) -> dict[str, Any]:
         """Fetch all data from the Somneo."""
         somneo = self.somneo
-        data = somneo.fetch_data()
+        # pysomneo only refreshes the lights, alarms and player once a minute
+        # unless forced, the coordinator sets the pace instead.
+        data = await somneo.fetch_data(force_slow_refresh=True)
 
         if not self.light_themes:
             self.light_themes = list(somneo.wake_light_themes)
@@ -126,7 +125,7 @@ class SomneoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._profile_fetched is None
             or monotonic() - self._profile_fetched >= WAKEUP_PROFILE_INTERVAL
         ):
-            self._profile = self._fetch_wakeup_profile()
+            self._profile = await self._fetch_wakeup_profile()
             self._profile_fetched = monotonic()
 
         alarm = data["alarms"][WAKEUP_ALARM]
@@ -141,10 +140,10 @@ class SomneoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             },
         }
 
-    def _fetch_wakeup_profile(self) -> dict[str, Any]:
+    async def _fetch_wakeup_profile(self) -> dict[str, Any]:
         """Fetch the light and sound settings of the wake-up alarm."""
         somneo = self.somneo
-        profile = somneo.get_alarm_details(WAKEUP_ALARM)
+        profile = await somneo.get_alarm_details(WAKEUP_ALARM)
         try:
             source = profile["snddv"]
             if source == "off":
@@ -176,12 +175,15 @@ class SomneoCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Send a command to the Somneo and refresh the data."""
         try:
             async with self._lock:
-                await self.hass.async_add_executor_job(
-                    ft.partial(func, *args, **kwargs)
-                )
+                await func(*args, **kwargs)
         except Exception as err:
             raise HomeAssistantError(f"Somneo command failed: {err}") from err
         await self.async_request_refresh()
+
+    async def async_close(self) -> None:
+        """Close the connection to the Somneo."""
+        # pysomneo does not expose closing its aiohttp session.
+        await self.somneo._client.session.close()  # noqa: SLF001
 
     async def async_toggle_light(
         self, state: bool, brightness: int | None = None

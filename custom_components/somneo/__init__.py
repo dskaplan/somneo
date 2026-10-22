@@ -1,14 +1,13 @@
 """Support for Philips Somneo devices."""
 from __future__ import annotations
 
-import asyncio
 import logging
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
-from .const import CONF_SESSION, ENTITY_KEYS
+from .const import ENTITY_KEYS
 from .coordinator import SomneoConfigEntry, SomneoCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,24 +37,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: SomneoConfigEntry) -> bo
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: SomneoConfigEntry) -> bool:
-    """Unload a config entry and try to clean up the Somneo client if possible."""
-    coordinator: SomneoCoordinator | None = getattr(entry, "runtime_data", None)
-
-    if coordinator is not None:
-        client = getattr(coordinator, "somneo", None)
-        if client is not None:
-            # Attempt to call a sensible shutdown if the client exposes one.
-            close = getattr(client, "close", None) or getattr(client, "shutdown", None) or getattr(client, "disconnect", None)
-            if close is not None:
-                try:
-                    if asyncio.iscoroutinefunction(close):
-                        await close()
-                    else:
-                        await hass.async_add_executor_job(close)
-                except Exception as err:  # noqa: BLE001
-                    _LOGGER.debug("Error while closing Somneo client: %s", err)
-
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    """Unload a config entry."""
+    if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+        await entry.runtime_data.async_close()
+    return unload_ok
 
 
 async def update_listener(hass: HomeAssistant, entry: SomneoConfigEntry) -> None:
@@ -71,9 +56,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: SomneoConfigEntry) -> 
         data = {**entry.data}
         data.pop("options", None)
         data.pop("use_session", None)
-        hass.config_entries.async_update_entry(
-            entry, data=data, options={CONF_SESSION: True}, version=4
-        )
+        hass.config_entries.async_update_entry(entry, data=data, version=4)
 
     if entry.version < 5:
         # Version 5 replaced the entities of the 16 alarms by a single wake-up

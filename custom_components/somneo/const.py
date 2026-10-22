@@ -5,7 +5,6 @@ DOMAIN: Final = "somneo"
 
 DEFAULT_NAME: Final = "SimpleSomneo"
 
-CONF_SESSION: Final = "session"
 
 # The wake-up controls are backed by the first alarm slot of the Somneo
 # (shown as the first alarm in the SleepMapper app).

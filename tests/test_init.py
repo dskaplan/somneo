@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from unittest.mock import Mock
+from unittest.mock import AsyncMock
 
 import pytest
 from homeassistant.core import HomeAssistant
@@ -125,7 +125,7 @@ async def test_unavailable_after_repeated_failures(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
     """Test that a single failed request does not make the entities unavailable."""
-    entry.runtime_data.somneo.fetch_data = Mock(side_effect=TimeoutError)
+    entry.runtime_data.somneo.fetch_data = AsyncMock(side_effect=TimeoutError)
     for failures in range(1, 4):
         async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=11 * failures))
         await hass.async_block_till_done(wait_background_tasks=True)
@@ -163,3 +163,11 @@ async def test_migration_removes_old_entities(
     }
     assert "serial_light" in unique_ids
     assert not {"serial_alarm0", "serial_alarm3"} & unique_ids
+
+
+async def test_unload_closes_session(
+    hass: HomeAssistant, entry: MockConfigEntry, client: FakeClient
+) -> None:
+    """Test that unloading closes the connection to the Somneo."""
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    client.session.close.assert_awaited_once()

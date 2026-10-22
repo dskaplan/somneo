@@ -15,7 +15,7 @@
       "init": {
         "title": "Opties voor Philips Somneo",
         "data": {
-          "session": "Hergebruik TLS verbindingen (standaard is ja)."
+          "scan_interval": "Update-interval in seconden"
         }
       }
     }
